@@ -58,16 +58,19 @@ export const TodoList = (props: TodoListPropsType) => {
             </h3>
             <AddItemForm addItem={addTask}/>
             <Box sx={containerSx}>
-                <Button variant={props.filter === 'all' ? 'outlined' : 'text'}
-                        color={'inherit'}
+                <Button variant={props.filter === 'all' ? 'contained' : 'outlined'}
+                        color={'primary'}
+                        size={'small'}
                         onClick={onAllClickHandler}>All
                 </Button>
-                <Button variant={props.filter === 'active' ? 'outlined' : 'text'}
+                <Button variant={props.filter === 'active' ? 'contained' : 'outlined'}
                         color={'primary'}
+                        size={'small'}
                         onClick={onActiveClickHandler}>Active
                 </Button>
-                <Button variant={props.filter === 'completed' ? 'outlined' : 'text'}
-                        color={'secondary'}
+                <Button variant={props.filter === 'completed' ? 'contained' : 'outlined'}
+                        color={'primary'}
+                        size={'small'}
                         onClick={onCompletedClickHandler}>Completed
                 </Button>
             </Box>
