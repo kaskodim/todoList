@@ -1,16 +1,17 @@
-import {FilterValuesType, TodoListsType} from '../App';
+import {FilterValuesType, TodoListsType} from '../../App';
 import {v1} from 'uuid';
 
-type RemoveTodolistAT = {
+export type RemoveTodolistAT = {
     type: 'REMOVE_TODOLIST',
     payload: {
         id: string,
     },
 }
-type AddTodolistAT = {
-    type: 'ADD_TODOLIST',
+export type AddTodolistAT = {
+    type: 'ADD_TODOLIST'
     payload: {
-        title: string,
+        todolistId: string
+        title: string
     },
 }
 type ChangeTitleTodolistAT = {
@@ -34,8 +35,7 @@ type ActionsType =
     | ChangeTitleTodolistAT
     | ChangeFilterTodolistAT
 
-export const todolistsReducer = (state: TodoListsType[],
-                                 action: ActionsType): TodoListsType[] => {
+export const todolistsReducer = (state: TodoListsType[], action: ActionsType): TodoListsType[] => {
 
     switch (action.type) {
         case 'REMOVE_TODOLIST': {
@@ -44,7 +44,7 @@ export const todolistsReducer = (state: TodoListsType[],
         }
         case 'ADD_TODOLIST': {
             return [...state, {
-                id: v1(),
+                id: action.payload.todolistId,
                 title: action.payload.title,
                 filter: 'all',
             }]
@@ -55,7 +55,7 @@ export const todolistsReducer = (state: TodoListsType[],
             if (todoList) {
                 todoList.title = action.payload.title
             }
-            return [...state]
+            return copyState
         }
         case 'CHANGE_FILTER_TODOLIST': {
             const copyState = [...state]
@@ -63,7 +63,7 @@ export const todolistsReducer = (state: TodoListsType[],
             if (totoList) {
                 totoList.filter = action.payload.filter
             }
-            return [...state]
+            return copyState
         }
         default:
             return state
@@ -82,6 +82,7 @@ export const addTodolistAC = (title: string): AddTodolistAT => {
     return {
         type: 'ADD_TODOLIST',
         payload: {
+            todolistId: v1(),
             title,
         }
     }
