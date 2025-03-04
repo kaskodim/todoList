@@ -13,9 +13,8 @@ test('correct todolist should be deleted', () => {
         {id: todolistId2, title: 'What to buy', filter: 'all'},
     ]
 
-    const action = removeTodolistAC(todolistId1)
-
     // 2. Действие
+    const action = removeTodolistAC(todolistId1)
     const endState = todolistsReducer(startState, action)
 
     // 3. Проверка
@@ -33,9 +32,9 @@ test('correct todolist should be added', () => {
     ]
 
     const newTitle: string = 'New Title Todolist'
-    const action = addTodolistAC(newTitle)
 
     // 2. Действие
+    const action = addTodolistAC(newTitle)
     const endState = todolistsReducer(startState, action)
 
     // 3. Проверка, что действие измененило state соответствующим образом
@@ -57,9 +56,10 @@ test('correct change of the todolist title', () => {
         {id: todolistId2, title: 'What to buy', filter: 'all'},
     ]
     const newTitle: string = 'Change Title Todolist'
-    const action = changeTitleTodolistAC(todolistId2, newTitle)
+
 
     // 2. Действие
+    const action = changeTitleTodolistAC(todolistId2, newTitle)
     const endState = todolistsReducer(startState, action)
 
     // 3. Проверка
@@ -79,9 +79,10 @@ test('correct filter change todolist', () => {
         {id: todolistId2, title: 'What to buy', filter: 'all'},
     ]
     const newFilter: FilterValuesType = 'completed'
-    const action = changeFilterTodolistAC(todolistId2, newFilter)
 
     // 2. Действие
+    const action = changeFilterTodolistAC(todolistId2, newFilter)
+
     const endState = todolistsReducer(startState, action)
 
     // 3. Проверка
