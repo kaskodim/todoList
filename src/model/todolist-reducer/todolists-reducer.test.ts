@@ -2,15 +2,25 @@ import {v1} from 'uuid'
 import {FilterValuesType, TodoListsType} from '../../App';
 import {addTodolistAC, changeFilterTodolistAC, changeTitleTodolistAC, removeTodolistAC, todolistsReducer} from './todolists-reducer';
 
-test('correct todolist should be deleted', () => {
-    const todolistId1 = v1()
-    const todolistId2 = v1()
 
-    // 1. Стартовый state
-    const startState: TodoListsType[] = [
+// 1.  старт для всех тестов
+let todolistId1: string;
+let todolistId2: string;
+let startState: TodoListsType[];
+
+beforeEach(() => {
+    todolistId1 = v1()
+    todolistId2 = v1()
+
+    startState = [
         {id: todolistId1, title: 'What to learn', filter: 'all'},
         {id: todolistId2, title: 'What to buy', filter: 'all'},
     ]
+})
+
+
+
+test('correct todolist should be deleted', () => {
 
     // 2. Действие
     const action = removeTodolistAC(todolistId1)
@@ -21,14 +31,6 @@ test('correct todolist should be deleted', () => {
     expect(endState[0].id).toBe(todolistId2)
 })
 test('correct todolist should be added', () => {
-    const todolistId1 = v1()
-    const todolistId2 = v1()
-
-    // 1. Стартовый state
-    const startState: TodoListsType[] = [
-        {id: todolistId1, title: 'What to learn', filter: 'all'},
-        {id: todolistId2, title: 'What to buy', filter: 'all'},
-    ]
 
     const newTitle: string = 'New Title Todolist'
 
@@ -46,14 +48,7 @@ test('correct todolist should be added', () => {
     expect(endState[2].filter).toBe('all')
 })
 test('correct change of the todolist title', () => {
-    const todolistId1 = v1()
-    const todolistId2 = v1()
 
-    // 1. Стартовый state
-    const startState: TodoListsType[] = [
-        {id: todolistId1, title: 'What to learn', filter: 'all'},
-        {id: todolistId2, title: 'What to buy', filter: 'all'},
-    ]
     const newTitle: string = 'Change Title Todolist'
 
     // 2. Действие
@@ -68,14 +63,7 @@ test('correct change of the todolist title', () => {
     expect(endState[1].filter).toBe('all')
 })
 test('correct filter change todolist', () => {
-    const todolistId1 = v1()
-    const todolistId2 = v1()
 
-    // 1. Стартовый state
-    const startState: TodoListsType[] = [
-        {id: todolistId1, title: 'What to learn', filter: 'all'},
-        {id: todolistId2, title: 'What to buy', filter: 'all'},
-    ]
     const newFilter: FilterValuesType = 'completed'
 
     // 2. Действие
