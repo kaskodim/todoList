@@ -84,6 +84,7 @@ export const addTodolistAC = (title: string): AddTodolistAT => {
         payload: {
             todolistId: v1(),
             title,
+
         }
     }
 }

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useReducer, useState} from 'react';
 import {TaskType, TodoList} from './todoList/TodoList';
 import {v1} from 'uuid';
 import {AddItemForm} from './addItemForm/AddItemForm';
@@ -15,6 +15,8 @@ import {createTheme, ThemeProvider} from '@mui/material/styles'
 import Switch from '@mui/material/Switch'
 import CssBaseline from '@mui/material/CssBaseline'
 import {Box} from '@mui/material';
+import {addTodolistAC, changeFilterTodolistAC, changeTitleTodolistAC, removeTodolistAC, todolistsReducer} from './model/todolist-reducer/todolists-reducer';
+import {addTaskAC, changeStatusTaskAC, changeTitleTaskAC, removeTaskAC, tasksReducer} from './model/task-reducer/tasks-reducer';
 
 type ThemeMode = 'dark' | 'light'
 
@@ -31,26 +33,8 @@ export type TasksStateType = {
 
 function App() {
 
-    const todoListId1 = v1()
-    const todoListId2 = v1()
-
-    const [todoLists, setTodoLists] = useState<TodoListsType[]>([
-        {id: todoListId1, title: 'What to learn', filter: 'all'},
-        {id: todoListId2, title: 'Movies', filter: 'all'},
-    ])
-    const [tasksObj, setTasksObj] = useState<TasksStateType>({
-        [todoListId1]: [
-            {id: v1(), title: 'CSS&HTML', isDone: true},
-            {id: v1(), title: 'JS', isDone: true},
-            {id: v1(), title: 'React', isDone: false},
-            {id: v1(), title: 'Redux', isDone: false},
-        ],
-
-        [todoListId2]: [{id: v1(), title: 'Terminator', isDone: true},
-            {id: v1(), title: 'xxx', isDone: true},
-            {id: v1(), title: 'Terminator2', isDone: false},
-        ]
-    });
+    const [todoLists, dispatchToTodolists] = useReducer(todolistsReducer, [])
+    const [tasks, dispatchToTasks] = useReducer(tasksReducer, {});
 
     const [themeMode, setThemeMode] = useState<ThemeMode>('light')
 
@@ -66,75 +50,41 @@ function App() {
         setThemeMode(themeMode === 'light' ? 'dark' : 'light')
     }
 
-
     const removeTodoList = (todoListID: string) => {
-        const filteredTodolists = todoLists.filter(tl => tl.id !== todoListID)
-        setTodoLists(filteredTodolists)
-        delete tasksObj[todoListID]
-        setTasksObj({...tasksObj})
+        dispatchToTodolists(removeTodolistAC(todoListID))
     }
     const addTodoLIst = (title: string) => {
-        const todoList: TodoListsType = {id: v1(), title: title, filter: 'all'};
-        setTodoLists([todoList, ...todoLists])
-        setTasksObj({
-            ...tasksObj,
-            [todoList.id]: []
-        })
+
+        const action = addTodolistAC(title)
+        dispatchToTodolists(action)
+        dispatchToTasks({type: 'ADD_TODOLIST', payload: {title: title, todolistId: action.payload.todolistId}})
     }
+
+
     const changeTodoListTitle = (todoListID: string, newTitle: string) => {
-        const todoList = todoLists.find(tl => tl.id === todoListID)
-        if (todoList) {
-            todoList.title = newTitle
-            setTodoLists([...todoLists])
-        }
+        dispatchToTodolists(changeTitleTodolistAC(todoListID, newTitle))
     }
     const changeFilter = (value: FilterValuesType, todoListID: string) => {
-        const totoList = todoLists.find(tl => tl.id === todoListID)
-        if (totoList) {
-            totoList.filter = value
-            setTodoLists([...todoLists])
-        }
+        dispatchToTodolists(changeFilterTodolistAC(todoListID, value))
     }
 
 
     const removeTask = (todoListID: string, id: string) => {
-
-        const tasks = tasksObj[todoListID];
-        const filteredTasks = tasks.filter(t => t.id !== id);
-        tasksObj[todoListID] = filteredTasks;
-        setTasksObj({...tasksObj})
+        dispatchToTasks(removeTaskAC(todoListID, id))
     }
     const addTask = (todoListID: string, title: string) => {
-        const newTask = {id: v1(), title: title, isDone: false};
-        const tasks = tasksObj[todoListID];
-        const newTasks = [newTask, ...tasks];
-        tasksObj[todoListID] = newTasks;
-        setTasksObj({...tasksObj})
+        dispatchToTasks(addTaskAC(todoListID, title))
     }
     const changeStatus = (todoListID: string, taskId: string, isDone: boolean) => {
-
-        const tasks = tasksObj[todoListID];
-        const task = tasks.find(t => t.id === taskId)
-        if (task) {
-            task.isDone = isDone
-            setTasksObj({...tasksObj})
-        }
+        dispatchToTasks(changeStatusTaskAC(todoListID, taskId, isDone))
     }
     const changeTaskTitle = (todoListID: string, taskId: string, newTitle: string) => {
-
-        const tasks = tasksObj[todoListID];
-        const task = tasks.find(t => t.id === taskId)
-        if (task) {
-            task.title = newTitle
-            setTasksObj({...tasksObj})
-        }
+        dispatchToTasks(changeTitleTaskAC(todoListID, taskId, newTitle))
     }
 
 
     return (
         <div className={'App'}>
-
-
             <ThemeProvider theme={theme}>
                 <CssBaseline/>
                 <Box sx={{flexGrow: 1, paddingBottom: '80px'}}>
@@ -156,17 +106,15 @@ function App() {
                     </AppBar>
                 </Box>
 
-
                 <Container maxWidth={'lg'}>
                     <Grid container sx={{mb: '30px'}}>
                         <AddItemForm addItem={addTodoLIst}/>
                     </Grid>
 
-
                     <Grid container spacing={4}>
                         {
                             todoLists.map((tl) => {
-                                let tasksForTodolist = tasksObj[tl.id]
+                                let tasksForTodolist = tasks[tl.id]
                                 if (tl.filter === 'completed') {
                                     tasksForTodolist = tasksForTodolist.filter(t => t.isDone);
                                 }
@@ -190,7 +138,6 @@ function App() {
                                                       changeTodoListTitle={changeTodoListTitle}
                                             />
                                         </Paper>
-
                                     </Grid>
                                 )
                             })
