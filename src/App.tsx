@@ -1,6 +1,5 @@
 import React, {useReducer, useState} from 'react';
 import {TaskType, TodoList} from './todoList/TodoList';
-import {v1} from 'uuid';
 import {AddItemForm} from './addItemForm/AddItemForm';
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
@@ -37,7 +36,6 @@ function App() {
     const [tasks, dispatchToTasks] = useReducer(tasksReducer, {});
 
     const [themeMode, setThemeMode] = useState<ThemeMode>('light')
-
     const theme = createTheme({
         palette: {
             mode: themeMode,
@@ -51,16 +49,16 @@ function App() {
     }
 
     const removeTodoList = (todoListID: string) => {
+        dispatchToTasks({type: 'REMOVE_TODOLIST', payload: {id: todoListID}})
         dispatchToTodolists(removeTodolistAC(todoListID))
     }
+
     const addTodoLIst = (title: string) => {
 
         const action = addTodolistAC(title)
         dispatchToTodolists(action)
         dispatchToTasks({type: 'ADD_TODOLIST', payload: {title: title, todolistId: action.payload.todolistId}})
     }
-
-
     const changeTodoListTitle = (todoListID: string, newTitle: string) => {
         dispatchToTodolists(changeTitleTodolistAC(todoListID, newTitle))
     }
