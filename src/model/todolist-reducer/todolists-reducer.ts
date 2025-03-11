@@ -1,108 +1,38 @@
-import {FilterValuesType, TodoListsType} from '../../App';
-import {v1} from 'uuid';
+import {createAction, createReducer, nanoid} from '@reduxjs/toolkit';
+import {FilterValuesType, TodoListsType} from '../../app/App';
 
-export type RemoveTodolistAT = {
-    type: 'REMOVE_TODOLIST',
-    payload: {
-        id: string,
-    },
-}
-export type AddTodolistAT = {
-    type: 'ADD_TODOLIST'
-    payload: {
-        todolistId: string
-        title: string
-    },
-}
-type ChangeTitleTodolistAT = {
-    type: 'CHANGE_TITLE_TODOLIST',
-    payload: {
-        id: string,
-        title: string,
-    },
-}
-type ChangeFilterTodolistAT = {
-    type: 'CHANGE_FILTER_TODOLIST',
-    payload: {
-        id: string,
-        filter: FilterValuesType,
-    }
-}
+const initialState: TodoListsType[] = [];
 
-type ActionsType =
-    | RemoveTodolistAT
-    | AddTodolistAT
-    | ChangeTitleTodolistAT
-    | ChangeFilterTodolistAT
+export const deleteTodolistAC = createAction<{ id: string }>('todolist/deleteTodolist');
+export const changeTodolistTitleAC = createAction<{ id: string, title: string }>('todolist/changeTodolistTitle');
+export const changeTodolistFilterAC = createAction<{ id: string, filter: FilterValuesType }>('todolist/changeTodolistFilter');
+export const createTodolistAC = createAction('todolist/createTodolist', (title: string) => {
+    return {payload: {title, id: nanoid()}};
+});
 
-export const todolistsReducer = (state: TodoListsType[], action: ActionsType): TodoListsType[] => {
-
-    switch (action.type) {
-        case 'REMOVE_TODOLIST': {
-            const copyState = [...state]
-            return copyState.filter(tl => tl.id !== action.payload.id)
-        }
-        case 'ADD_TODOLIST': {
-            return [...state, {
-                id: action.payload.todolistId,
-                title: action.payload.title,
-                filter: 'all',
-            }]
-        }
-        case 'CHANGE_TITLE_TODOLIST': {
-            const copyState = [...state]
-            const todoList = copyState.find(tl => tl.id === action.payload.id)
-            if (todoList) {
-                todoList.title = action.payload.title
-            }
-            return copyState
-        }
-        case 'CHANGE_FILTER_TODOLIST': {
-            const copyState = [...state]
-            const totoList = copyState.find(tl => tl.id === action.payload.id)
-            if (totoList) {
-                totoList.filter = action.payload.filter
-            }
-            return copyState
-        }
-        default:
-            return state
+export const todolistsReducer = createReducer(
+    initialState, builder => {
+        builder
+            .addCase(deleteTodolistAC, (state, action) => {
+                const index = state.findIndex(todolist => todolist.id === action.payload.id);
+                if (index > -1) {
+                    state.splice(index, 1);
+                }
+            })
+            .addCase(createTodolistAC, (state, action) => {
+                state.push({...action.payload, filter: 'all'});
+            })
+            .addCase(changeTodolistTitleAC, (state, action) => {
+                const todolist = state.find(todolist => todolist.id === action.payload.id);
+                if (todolist) {
+                    todolist.title = action.payload.title;
+                }
+            })
+            .addCase(changeTodolistFilterAC, (state, action) => {
+                const index = state.findIndex(todolist => todolist.id === action.payload.id);
+                if (index > -1) {
+                    state[index].filter = action.payload.filter;
+                }
+            });
     }
-}
-
-export const removeTodolistAC = (id: string): RemoveTodolistAT => {
-    return {
-        type: 'REMOVE_TODOLIST',
-        payload: {
-            id,
-        }
-    }
-}
-export const addTodolistAC = (title: string): AddTodolistAT => {
-    return {
-        type: 'ADD_TODOLIST',
-        payload: {
-            todolistId: v1(),
-            title,
-
-        }
-    }
-}
-export const changeTitleTodolistAC = (id: string, title: string): ChangeTitleTodolistAT => {
-    return {
-        type: 'CHANGE_TITLE_TODOLIST',
-        payload: {
-            id,
-            title,
-        }
-    }
-}
-export const changeFilterTodolistAC = (id: string, filter: FilterValuesType): ChangeFilterTodolistAT => {
-    return {
-        type: 'CHANGE_FILTER_TODOLIST',
-        payload: {
-            id,
-            filter,
-        }
-    }
-}
+);
