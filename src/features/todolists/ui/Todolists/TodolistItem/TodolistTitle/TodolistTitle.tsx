@@ -1,39 +1,34 @@
-import {useAppDispatch} from '@/common/hooks/useAppDispatch'
-import {EditableSpan} from '@/common/components/EditableSpan/EditableSpan'
-import {
-  changeTodolistTitleAC,
-  deleteTodolistAC,
-  type Todolist
-} from '@/features/todolists/model/todolists-reducer'
-import DeleteIcon from '@mui/icons-material/Delete'
-import IconButton from '@mui/material/IconButton'
-import styles from './TodolistTitle.module.css'
+import { EditableSpan } from "@/common/components"
+import { useRemoveTodolistMutation, useUpdateTodolistTitleMutation } from "@/features/todolists/api/todolistsApi"
+import type { DomainTodolist } from "@/features/todolists/lib/types"
+import DeleteIcon from "@mui/icons-material/Delete"
+import IconButton from "@mui/material/IconButton"
+import styles from "./TodolistTitle.module.css"
 
 type Props = {
-  todolist: Todolist
+  todolist: DomainTodolist
 }
 
-export const TodolistTitle = ({todolist}: Props) => {
-  const {id, title} = todolist
+export const TodolistTitle = ({ todolist }: Props) => {
+  const { id, title, entityStatus } = todolist
 
-  const dispatch = useAppDispatch()
+  const [removeTodolist] = useRemoveTodolistMutation()
+  const [updateTodolistTitle] = useUpdateTodolistTitleMutation()
 
-  const deleteTodolist = () => {
-    dispatch(deleteTodolistAC({id}))
-  }
+  const deleteTodolist = () => removeTodolist(id)
 
   const changeTodolistTitle = (title: string) => {
-    dispatch(changeTodolistTitleAC({id, title}))
+    updateTodolistTitle({ id, title })
   }
 
   return (
-      <div className={styles.container}>
-        <h3>
-          <EditableSpan value={title} onChange={changeTodolistTitle}/>
-        </h3>
-        <IconButton onClick={deleteTodolist}>
-          <DeleteIcon/>
-        </IconButton>
-      </div>
+    <div className={styles.container}>
+      <h3>
+        <EditableSpan value={title} onChange={changeTodolistTitle} />
+      </h3>
+      <IconButton onClick={deleteTodolist} disabled={entityStatus === "loading"}>
+        <DeleteIcon />
+      </IconButton>
+    </div>
   )
 }
